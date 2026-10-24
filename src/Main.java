@@ -1,17 +1,16 @@
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
 
-        Scanner scanner = new Scanner(System.in);
-        List<Student> students = new ArrayList<>();
-
         System.out.println("=========================");
         System.out.println("Student Management System");
         System.out.println("=========================");
-        
+
+        Scanner scanner = new Scanner(System.in);
+        List<Student> students = StudentFileManager.loadStudents();
+
         boolean running = true;
         int userChoice = 0;
         while (running) {
@@ -53,6 +52,7 @@ public class Main {
                     break;
 
                 case 6:
+                    StudentFileManager.saveStudents(students);
                     System.out.println("Goodbye!");
                     running = false;
                     break;
@@ -118,6 +118,7 @@ public class Main {
         }
 
         students.add(new Student(studentID, studentName, studentAge));
+        StudentFileManager.saveStudents(students);
         System.out.println("Student added successfully!");
     }
 
@@ -146,6 +147,7 @@ public class Main {
 
             boolean statusUpdate = updateStudentAge(students, updateID, newAge);
             if (statusUpdate) {
+                StudentFileManager.saveStudents(students);
                 System.out.println("New Age updated successfully!");
             } else {
                 if (findStudentById(students, updateID) == null) {
@@ -166,6 +168,7 @@ public class Main {
 
             boolean deletedStudent = deleteStudentById(students, deleteId);
             if (deletedStudent) {
+                StudentFileManager.saveStudents(students);
                 System.out.println("Student " + deleteId + " deleted successfully!");
             } else {
                 System.out.println("Student ID not found.");
