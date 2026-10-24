@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,7 +9,7 @@ import java.util.List;
 
 public class StudentFileManager {
     
-    private static final String FILE_NAME = "student.txt";
+    private static final String FILE_NAME = "students.txt";
 
     public static void saveStudents(List<Student> students) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME))){
@@ -30,18 +31,45 @@ public class StudentFileManager {
     public static List<Student> loadStudents() {
         List<Student> students = new ArrayList<>();
 
+        File file = new File(FILE_NAME);
+        if (!file.exists()) {
+            System.out.println("No saved records found. Starting fresh.");
+            return students;
+        }
+
         try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
             String line;
+            int lineNumber = 0;
 
             while ((line = reader.readLine()) != null) {
-                String[] data = line.split(",");
+                lineNumber++;
+                String[] data = line.split(",", -1);
 
-                int id = Integer.parseInt(data[0]);
-                String name = data[1];
-                int age = Integer.parseInt(data[2]);
+                if (data.length != 3) {
+                    System.out.println("Skipping invalid record at line: " + lineNumber);
+                    continue;
+                }
 
-                Student student = new Student(id, name, age);
-                students.add(student);
+                try {
+                    int id = Integer.parseInt(data[0].trim());
+                    String name = data[1];
+                    int age = Integer.parseInt(data[2].trim());
+
+                    if (id <= 0 || name.isEmpty() || age < 1 || age > 120) {
+                        System.out.println("Skipping invalid record at line " + lineNumber);
+                        continue;
+                    }
+
+                    if (findDuplicateId(students, id)) {
+                        System.out.println("Skipping invalid record at line " + lineNumber);
+                        continue;
+                    }
+
+                    students.add(new Student(id, name, age));
+
+                } catch (NumberFormatException e) {
+                    System.out.println("Skipping invalid numeric data at line " + lineNumber);
+                }
             }
             System.out.println("Student records loaded successfully.");
 
@@ -51,4 +79,13 @@ public class StudentFileManager {
 
         return students;
     }
-}
+
+    public static boolean findDuplicateId(List<Student> students, int id) {
+        for (Student student : students) {
+            if (student.getId() == id) {
+                return true;
+            }
+        }
+        return false;
+    }
+ }
