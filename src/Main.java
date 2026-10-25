@@ -10,29 +10,21 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
         List<Student> students = StudentFileManager.loadStudents();
+        StudentManager studentManager = new StudentManager(students);
 
         boolean running = true;
-        int userChoice = 0;
+        int userChoice;
         while (running) {
-            try {
-                System.out.println("\n1. Add Student");
-                System.out.println("2. View All Students");
-                System.out.println("3. Search Student ID");
-                System.out.println("4. Update Student Age");
-                System.out.println("5. Delete Student");
-                System.out.println("6. Exit");
-                System.out.println("=========================");
-                System.out.print("Enter your choice: ");
-                userChoice = Integer.parseInt(scanner.nextLine());
+            displayMenu();
+            userChoice = getMenuChoice(scanner);
 
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a number.");
+            if (userChoice == -1) {
                 continue;
             }
 
             switch (userChoice) {
                 case 1:
-                    addStudent(scanner, students);
+                    addStudent(scanner, students, studentManager);
                     break;
 
                 case 2:
@@ -40,15 +32,15 @@ public class Main {
                     break;
 
                 case 3:
-                    searchStudent(scanner, students);
+                    searchStudent(scanner, studentManager);
                     break;
 
                 case 4:
-                    updateStudent(scanner, students);
+                    updateStudent(scanner, students, studentManager);
                     break;
 
                 case 5:
-                    deleteStudent(scanner, students);
+                    deleteStudent(scanner, students, studentManager);
                     break;
 
                 case 6:
@@ -65,6 +57,27 @@ public class Main {
         scanner.close();
     }
 
+    public static void displayMenu() {
+        System.out.println("\n1. Add Student");
+        System.out.println("2. View All Students");
+        System.out.println("3. Search Student ID");
+        System.out.println("4. Update Student Age");
+        System.out.println("5. Delete Student");
+        System.out.println("6. Exit");
+        System.out.println("=========================");
+        System.out.print("Enter your choice: ");
+
+    }
+
+    public static int getMenuChoice(Scanner scanner) {
+        try {
+            return Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
+            return -1;
+        }
+    }
+
     public static void viewAllStudents(List<Student> students) {
         if (students.isEmpty()) {
             System.out.println("No student registered yet.");
@@ -77,7 +90,7 @@ public class Main {
         }
     }
 
-    public static void addStudent(Scanner scanner, List<Student> students) {
+    public static void addStudent(Scanner scanner, List<Student> students, StudentManager studentManager) {
         // Student ID
         System.out.print("\nEnter student ID: ");
         int studentID;
@@ -94,7 +107,17 @@ public class Main {
     
         // Student Name
         System.out.print("Enter student name: ");
-        String studentName = scanner.nextLine();
+        String studentName = scanner.nextLine().trim();
+
+        if (studentName.isEmpty()) {
+            System.out.println("Student name cannot be empty.");
+            return;
+        }
+
+        if (studentName.contains(",")) {
+            System.out.println("Student name cannot contain commas.");
+            return;
+        }
 
         // Student Age
         System.out.print("Enter student age: ");
@@ -111,7 +134,7 @@ public class Main {
         }
 
         // Validation
-        Student findStudent = findStudentById(students, studentID);
+        Student findStudent = studentManager.findStudentById(studentID);
         if (findStudent != null) {
             System.out.println("Student ID already exists. Please try again.");
             return;
@@ -122,11 +145,11 @@ public class Main {
         System.out.println("Student added successfully!");
     }
 
-    public static void searchStudent(Scanner scanner, List<Student> students) {
+    public static void searchStudent(Scanner scanner, StudentManager studentManager) {
         try {
             System.out.print("Enter student ID to search: ");
             int searchID = Integer.parseInt(scanner.nextLine());
-            Student foundStudent = findStudentById(students, searchID);
+            Student foundStudent = studentManager.findStudentById(searchID);
             if (foundStudent != null) {
                 System.out.println("Found: " + foundStudent);
             } else {
@@ -137,7 +160,7 @@ public class Main {
         }
     }
 
-    public static void updateStudent(Scanner scanner, List<Student> students) {
+    public static void updateStudent(Scanner scanner, List<Student> students, StudentManager studentManager) {
          try {
             System.out.print("Enter student ID to update: ");
             int updateID = Integer.parseInt(scanner.nextLine());
@@ -145,12 +168,12 @@ public class Main {
             System.out.print("Enter a new age: ");
             int newAge = Integer.parseInt(scanner.nextLine());
 
-            boolean statusUpdate = updateStudentAge(students, updateID, newAge);
+            boolean statusUpdate = studentManager.updateStudentAge(updateID, newAge);
             if (statusUpdate) {
                 StudentFileManager.saveStudents(students);
                 System.out.println("New Age updated successfully!");
             } else {
-                if (findStudentById(students, updateID) == null) {
+                if (studentManager.findStudentById(updateID) == null) {
                     System.out.println("Update failed. Student ID not found.");
                 } else {
                      System.out.println("Update failed. Age must be between 1 and 120.");
@@ -161,12 +184,12 @@ public class Main {
         }
     }
 
-    public static void deleteStudent(Scanner scanner, List<Student> students) {
+    public static void deleteStudent(Scanner scanner, List<Student> students, StudentManager studentManager) {
         try {
             System.out.print("Enter student ID to delete: ");
             int deleteId = Integer.parseInt(scanner.nextLine());
 
-            boolean deletedStudent = deleteStudentById(students, deleteId);
+            boolean deletedStudent = studentManager.deleteStudentById(deleteId);
             if (deletedStudent) {
                 StudentFileManager.saveStudents(students);
                 System.out.println("Student " + deleteId + " deleted successfully!");
@@ -176,44 +199,5 @@ public class Main {
         } catch (NumberFormatException e) {
             System.out.println("Invalid ID. Please enter a number.");
         }
-    }
-
-
-    /* 
-     * Function
-     */ 
-    public static Student findStudentById(List<Student> students, int id) {
-        for (Student student : students) {
-            if (student.getId() == id) {
-                return student;
-            }
-        }
-        return null;
-    }
-
-    public static boolean updateStudentAge(List<Student> students, int id, int newAge) {
-        Student student = findStudentById(students, id);
-
-        if (student != null) {
-            if (newAge < 1 || newAge > 120) {
-                return false;
-            }
-
-            student.setAge(newAge);
-            return true;
-        }
-
-        return false;
-    }
-
-    public static boolean deleteStudentById(List<Student> students, int id) {
-        Student student = findStudentById(students, id);
-
-        if (student != null) {
-            students.remove(student);
-            return true;
-        }
-
-        return false;
     }
 }

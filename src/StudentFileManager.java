@@ -5,7 +5,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class StudentFileManager {
     
@@ -30,6 +32,7 @@ public class StudentFileManager {
 
     public static List<Student> loadStudents() {
         List<Student> students = new ArrayList<>();
+        Set<Integer> seenIds = new HashSet<>();
 
         File file = new File(FILE_NAME);
         if (!file.exists()) {
@@ -55,13 +58,13 @@ public class StudentFileManager {
                     String name = data[1];
                     int age = Integer.parseInt(data[2].trim());
 
-                    if (id <= 0 || name.isEmpty() || age < 1 || age > 120) {
-                        System.out.println("Skipping invalid record at line " + lineNumber);
+                    if (id <= 0 || name.trim().isEmpty() || age < 1 || age > 120) {
+                        System.out.println("Skipping record with invalid field values at line " + lineNumber);
                         continue;
                     }
 
-                    if (findDuplicateId(students, id)) {
-                        System.out.println("Skipping invalid record at line " + lineNumber);
+                    if (!seenIds.add(id)) {
+                        System.out.println("Skipping duplicate student ID at line " + lineNumber);
                         continue;
                     }
 
@@ -78,14 +81,5 @@ public class StudentFileManager {
         }
 
         return students;
-    }
-
-    public static boolean findDuplicateId(List<Student> students, int id) {
-        for (Student student : students) {
-            if (student.getId() == id) {
-                return true;
-            }
-        }
-        return false;
     }
  }

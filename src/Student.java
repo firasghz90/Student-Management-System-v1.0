@@ -5,8 +5,8 @@ public class Student {
     private int age;
 
     public Student(int id, String name, int age) {
-        this.id = id;
-        this.name = name;
+        setId(id);
+        setName(name);
         setAge(age);
     }
 
@@ -15,6 +15,9 @@ public class Student {
     }
 
     public void setId(int id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("Student ID must be positive.");
+        }
         this.id = id;
     }
 
@@ -23,7 +26,15 @@ public class Student {
     }
 
     public void setName(String name) {
-        this.name = name;
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Student name cannot be empty.");
+        }
+
+        if (name.contains(",")) {
+            throw new IllegalArgumentException("Student name cannot contain commas.");
+        }
+
+        this.name = name.trim();
     }
 
     public int getAge() {
@@ -31,6 +42,10 @@ public class Student {
     }
 
     public void setAge(int age) {
+        if (age < 1 || age > 120) {
+            throw new IllegalArgumentException("Age must be between 1 and 120.");
+        }
+
         this.age = age;
     }
 
