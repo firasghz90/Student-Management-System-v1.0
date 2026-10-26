@@ -1,3 +1,5 @@
+package com.rasghz90.sms;
+
 public class Student {
     
     private int id;

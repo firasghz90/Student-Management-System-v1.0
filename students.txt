@@ -1,4 +1,2 @@
-101,Alice,24
+101,Alice,20
 102,Bob,24
-103,Charlie,23
-104,Dorry,24
