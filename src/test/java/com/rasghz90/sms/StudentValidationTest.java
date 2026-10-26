@@ -1,3 +1,4 @@
+package com.rasghz90.sms;
 
 public class StudentValidationTest {
     public static void main(String[] args) {

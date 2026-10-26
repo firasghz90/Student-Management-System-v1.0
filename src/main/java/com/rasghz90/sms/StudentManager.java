@@ -1,3 +1,5 @@
+package com.rasghz90.sms;
+
 import java.util.List;
 
 public class StudentManager {
