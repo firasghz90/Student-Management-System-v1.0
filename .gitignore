@@ -1,6 +1,16 @@
 # Student Management System
 # Version: 1.0
 
-# Folder
-/.vscode
-/bin
+# Maven build output
+target/
+
+# Compiled Java Files
+*.class
+
+# IDE-spesific settings
+.vscode/
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db

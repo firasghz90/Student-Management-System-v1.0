@@ -6,14 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.io.TempDir;
 
 public class StudentFileManagerTest {
@@ -96,7 +94,7 @@ public class StudentFileManagerTest {
     }
 
     @Test 
-    void shouldSkipDuplictesStudentIds() throws IOException {
+    void shouldSkipDuplicateStudentIds() throws IOException {
         Path filePath = tempDir.resolve("duplicates.txt");
 
         Files.writeString(filePath, 
